@@ -1,98 +1,120 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useAuth } from "../../contexts/AuthContext";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function Home() {
+  const { session, carregando, entrar, cadastrar, sair } = useAuth();
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [modoCadastro, setModoCadastro] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
+  async function handleSubmit() {
+    setErro(null);
+    setEnviando(true);
+    const resultado = modoCadastro
+      ? await cadastrar(email, senha)
+      : await entrar(email, senha);
+    setEnviando(false);
+    if (resultado.erro) setErro(resultado.erro);
   }
-  if (Device.isDevice) {
+
+  if (carregando) {
     return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
+      <View style={styles.container}>
+        <Text>Carregando...</Text>
+      </View>
     );
   }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+  if (session) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.titulo}>Logado como {session.user.email}</Text>
+        <Text> A tela de cadastro do pet vem no próximo passo.</Text>
+        <Pressable
+          onPress={sair}
+          accessibilityRole="button"
+          accessibilityLabel="Sair da Conta"
+          style={styles.botaoSecundario}
+        >
+          <Text style={styles.textoBotaoSecundario}>Sair</Text>
+        </Pressable>
+      </View>
+    );
+  }
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+    <View style={styles.container}>
+      <Text style={styles.titulo}>
+        {modoCadastro ? "Criar conta" : "Entrar"}
+      </Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        accessibilityLabel="Campo de Email"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Senha"
+        value={senha}
+        onChangeText={setSenha}
+        secureTextEntry
+        accessibilityLabel="Campo de Senha"
+      />
+      {erro && (
+        <Text style={styles.erro} accessibilityRole="alert">
+          {erro}{" "}
+        </Text>
+      )}
+
+      <Pressable
+        onPress={handleSubmit}
+        disabled={enviando}
+        accessibilityRole="button"
+        accessibilityLabel={modoCadastro ? "Criar Conta" : "Entrar"}
+        style={styles.botao}
+      >
+        <Text style={styles.textoBotao}>
+          {enviando ? "Enviando..." : modoCadastro ? "Criar Conta" : "Entrar"}
+        </Text>
+      </Pressable>
+
+      <Pressable
+        onPress={() => setModoCadastro(!modoCadastro)}
+        accessibilityRole="button"
+      >
+        <Text style={styles.link}>
+          {modoCadastro ? "Já tenho conta" : "Criar uma conta"}
+        </Text>
+      </Pressable>
+    </View>
   );
 }
-
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+  container: { flex: 1, justifyContent: "center", padding: 24, gap: 12 },
+  titulo: { fontSize: 24, fontWeight: "bold", marginBottom: 16 },
+  input: {
+    borderWidth: 1,
+    borderColor: "#999",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+  botao: {
+    backgroundColor: "#534AB7",
+    padding: 14,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 8,
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+  textoBotao: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  botaoSecundario: { padding: 12, marginTop: 16 },
+  textoBotaoSecundario: { color: "#993C1D", textAlign: "center" },
+  link: { color: "#534AB7", textAlign: "center", marginTop: 12 },
+  erro: { color: "#B91C1C", textAlign: "center" },
 });
