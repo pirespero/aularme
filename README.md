@@ -17,7 +17,7 @@ Esse é também um projeto de aprendizado: cada parte do código é comentada ex
 
 ## Funcionalidades (v1)
 
-- **Cadastro de pets**: cadastre quantos cachorros quiser, com nome e foto. (Só cachorros por enquanto — outras espécies podem entrar depois.)
+- **Cadastro de pets**: cadastre quantos cachorros quiser, com nome, foto e data de nascimento (opcional — usada pra calcular a idade e, futuramente, sugerir cuidados por fase de vida). (Só cachorros por enquanto — outras espécies podem entrar depois.)
 - **5 tipos de cuidado**: passeio, comida, ração, brincar e banho.
 - **Dois tipos de lembrete**:
   - *Fixo diário* — cuidados que se repetem todo dia (comida, passeio), com horário sugerido e editável.
@@ -106,9 +106,11 @@ aularme/
 
 ## Roadmap
 
-- [ ] Estrutura inicial do projeto (Expo + TypeScript)
-- [ ] Modelagem do banco no Supabase (pets, cuidados, registros diários)
-- [ ] Tela de cadastro de pet (com foto)
+- [x] Estrutura inicial do projeto (Expo + TypeScript)
+- [x] Modelagem do banco no Supabase (pets, cuidados, registros diários)
+- [ ] Autenticação (login/cadastro de usuário)
+- [ ] Tela de cadastro de pet (com foto e data de nascimento)
+- [ ] Landing page de apresentação (antes do login)
 - [ ] Sistema de alarmes locais
 - [ ] Painel de anéis de cuidado
 - [ ] Mascote reativo
@@ -118,6 +120,14 @@ aularme/
 - [ ] Pipeline de CI (lint + testes)
 - [ ] Primeiro build via EAS + distribuição por APK
 - [ ] Avaliar publicação na Play Store (taxa única de US$25)
+
+## Ideias futuras (backlog)
+
+Coisas que fazem sentido, mas que ficam fora do escopo por enquanto — documentadas aqui pra não esquecer, sem comprometer o que já está em andamento:
+
+- **Sugestões automáticas de cuidado por porte + fase de vida**: ao cadastrar um pet, pré-sugerir os cuidados (tipo e frequência) com base no porte (pequeno/médio/grande) e na fase de vida calculada pela data de nascimento (filhote/adulto/idoso), em vez do usuário configurar tudo do zero. Sempre como sugestão de partida, nunca como recomendação veterinária definitiva — o usuário ajusta como quiser.
+- **E-mails de autenticação personalizados**: trocar o HTML padrão dos e-mails do Supabase (confirmação de conta, recuperação de senha) por um template com a identidade visual do Aularme.
+- **Fluxo de login mais robusto**: login com Google (mesmo padrão já usado no Receitrix), recuperação de senha ("esqueci minha senha"), validação de força de senha na tela antes de enviar, e mensagens de erro traduzidas/amigáveis em vez do texto cru que o Supabase devolve.
 
 ## Autor
 
